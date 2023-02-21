@@ -6,6 +6,7 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -16,13 +17,17 @@ class PostController extends Controller
      */
     public function index()
     {
+        if(!Auth::check()){
+            return redirect('login');
+        } 
+
         $posts = Post::active()->withTrashed()->get();
        
         $viewData = [
             'posts' => $posts,
         ];
 
-        return view('posts.index', $viewData);
+        return view('posts.index', $viewData);    
     }
 
     /**
@@ -32,6 +37,10 @@ class PostController extends Controller
      */
     public function create()
     {
+        if(!Auth::check()){
+            return redirect('login');
+        }
+
         return view('posts.create');    
     }
 
@@ -43,14 +52,16 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+        if(!Auth::check()){
+            return redirect('login');
+        }
+
         $title = $request->input("title");
         $content = $request->input("content");
 
-        Post::insert([
+        Post::create([
             'title' => $title,
             'content' => $content,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
         return redirect('posts');
@@ -64,6 +75,10 @@ class PostController extends Controller
      */
     public function show($id)
     {   
+        if(!Auth::check()){
+            return redirect('login');
+        }
+
         $posts = Post::where("id", $id)->first();
         $comments = $posts->comments()->limit(2)->get();
         $totalComments = $posts->totalComments();
@@ -85,6 +100,10 @@ class PostController extends Controller
      */
     public function edit($id)
     {
+        if(!Auth::check()){
+            return redirect('login');
+        }
+
         $posts = Post::where("id", $id)
             ->first();
 
@@ -104,6 +123,10 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if(!Auth::check()){
+            return redirect('login');
+        }
+
         $title = $request->input('title');
         $content = $request->input('content');
 
@@ -125,6 +148,10 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
+        if(!Auth::check()){
+            return redirect('login');
+        }
+        
         Post::where('id', $id)->delete();
 
         return redirect('posts');
